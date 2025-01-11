@@ -73,6 +73,7 @@ configure_dhcp() {
 
   if [ "$dhcp_server" != "127.0.0.1#5353" ]; then
     log_message "INFO" "Setting DHCP server to 127.0.0.1#5353"
+    uci -q delete dhcp.@dnsmasq[0].server
     uci -q add_list dhcp.@dnsmasq[0].server="127.0.0.1#5353"
     uci commit dhcp
   fi
