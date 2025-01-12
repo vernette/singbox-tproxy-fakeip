@@ -12,7 +12,7 @@ Shell скрипт для настройки sing-box на использова�
 ## Установка
 
 ```bash
-sh <(wget -O - https://raw.githubusercontent.com/vernette/singbox-tproxy-fakeip/main/install.sh)
+sh <(wget -O - https://raw.githubusercontent.com/vernette/singbox-tproxy-fakeip/refs/heads/master/install.sh)
 ```
 
 > [!WARNING]
@@ -40,7 +40,7 @@ Shell script to configure sing-box to use TProxy and FakeIP on OpenWrt router.
 ## Installation
 
 ```bash
-sh <(wget -O - https://raw.githubusercontent.com/vernette/singbox-tproxy-fakeip/main/install.sh)
+sh <(wget -O - https://raw.githubusercontent.com/vernette/singbox-tproxy-fakeip/refs/heads/master/install.sh)
 ```
 
 > [!WARNING]
