@@ -29,6 +29,8 @@ systemctl restart sing-box
 
 И всё готово!
 
+**Обязательно** прочитать [как всё это работает](https://gist.github.com/vernette/67466961ed5882b3ff21222d1b964929)
+
 # EN
 
 Shell script to configure sing-box to use TProxy and FakeIP on OpenWrt router.
@@ -56,3 +58,5 @@ systemctl restart sing-box
 ```
 
 And now you are ready to go!
+
+**Must read** [on how everything works](https://gist.github.com/vernette/67466961ed5882b3ff21222d1b964929)
