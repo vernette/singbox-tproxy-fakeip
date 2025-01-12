@@ -140,26 +140,12 @@ add_network_section() {
 configure_network() {
   changes=0
 
-  log_message "INFO" "Checking for existing network rule"
-  if check_network_rule_exists "rule" "mark=0x1" "priority=100" "lookup=100"; then
-    log_message "INFO" "Network rule already exists"
-  else
+  if ! check_network_rule_exists "rule" "mark=0x1" "priority=100" "lookup=100"; then
     log_message "INFO" "Adding new network rule with mark 0x1"
-    if add_network_section "rule" "mark=0x1" "priority=100" "lookup=100"; then
-      changes=1
-      log_message "INFO" "Network rule added successfully"
-    fi
   fi
 
-  log_message "INFO" "Checking for existing network route"
-  if check_network_rule_exists "route" "interface=loopback" "target=0.0.0.0/0" "table=100" "type=local"; then
-    log_message "INFO" "Network route already exists"
-  else
+  if ! check_network_rule_exists "route" "interface=loopback" "target=0.0.0.0/0" "table=100" "type=local"; then
     log_message "INFO" "Adding new network route for loopback interface"
-    if add_network_section "route" "interface=loopback" "target=0.0.0.0/0" "table=100" "type=local"; then
-      changes=1
-      log_message "INFO" "Network route added successfully"
-    fi
   fi
 
   if [ "$changes" = "1" ]; then
@@ -168,9 +154,6 @@ configure_network() {
       log_message "ERROR" "Failed to commit changes"
       return 1
     fi
-    log_message "INFO" "Changes to network configuration committed successfully"
-  else
-    log_message "INFO" "No changes needed for network configuration"
   fi
 }
 
