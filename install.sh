@@ -174,11 +174,45 @@ configure_network() {
   fi
 }
 
+configure_nftables() {
+  config_path="/etc/nftables.d/30-tproxy-fakeip.nft"
+  if [ ! -f "$config_path" ]; then
+    log_message "INFO" "Creating nftables config"
+    cat <<'EOF' >"$config_path"
+define TPROXY_MARK = 0x1
+define TPROXY_L4PROTO = { tcp, udp }
+define TPROXY_PORT = 4444
+define FAKEIP = { 198.18.0.0/15 }
+
+chain tproxy_prerouting {
+  type filter hook prerouting priority mangle; policy accept;
+  ip daddr != $FAKEIP return
+  meta l4proto $TPROXY_L4PROTO tproxy to :$TPROXY_PORT meta mark set $TPROXY_MARK accept
+}
+
+chain tproxy_output {
+  type route hook output priority mangle; policy accept;
+  ip daddr != $FAKEIP return
+  meta l4proto $TPROXY_L4PROTO meta mark set $TPROXY_MARK
+}
+EOF
+  fi
+}
+
+restart_service() {
+  service="$1"
+  log_message "INFO" "Restarting $service service"
+  service "$service" restart
+}
+
 main() {
   install_dependencies
   configure_sing_box_service
   configure_dhcp
   configure_network
+  configure_nftables
+  restart_service "dnsmasq"
+  restart_service "firewall"
 }
 
 main
