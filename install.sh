@@ -1,7 +1,7 @@
 #!/usr/bin/env sh
 
 NEED_UPDATE=1
-DEPENDENCIES="sing-box kmod-nft-tproxy"
+DEPENDENCIES="sing-box kmod-nft-tproxy nano"
 
 get_timestamp() {
   format="$1"
