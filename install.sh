@@ -205,12 +205,121 @@ restart_service() {
   service "$service" restart
 }
 
+configure_sing_box() {
+  config_path="/etc/sing-box/config.json"
+  if ! grep -q "fakeip" "$config_path"; then
+    log_message "INFO" "Configuring sing-box"
+    cat <<'EOF' >"$config_path"
+{
+  "log": {
+    "level": "info"
+  },
+  "experimental": {
+    "cache_file": {
+      "enabled": true,
+      "store_fakeip": true,
+      "path": "/etc/sing-box/cache.db"
+    }
+  },
+  "dns": {
+    "strategy": "ipv4_only",
+    "fakeip": {
+      "enabled": true,
+      "inet4_range": "198.18.0.0/15"
+    },
+    "servers": [
+      {
+        "tag": "cloudflare-doh-server",
+        "address": "https://1.1.1.1/dns-query",
+        "detour": "direct-out"
+      },
+      {
+        "tag": "fakeip-server",
+        "address": "fakeip"
+      }
+    ],
+    "rules": [
+      {
+        "domain_suffix": ["ifconfig.me"],
+        "server": "fakeip-server"
+      }
+    ]
+  },
+  "inbounds": [
+    {
+      "tag": "tproxy-in",
+      "type": "tproxy",
+      "listen": "::",
+      "listen_port": 4444,
+      "tcp_fast_open": true,
+      "udp_fragment": true,
+      "sniff": true
+    },
+    {
+      "tag": "dns-in",
+      "type": "direct",
+      "listen": "127.0.0.1",
+      "listen_port": 5353,
+      "sniff": true
+    }
+  ],
+  "outbounds": [
+    {
+      "tag": "direct-out",
+      "type": "direct"
+    },
+    {
+      "tag": "dns-out",
+      "type": "dns"
+    },
+    {
+      "tag": "vless-out",
+      "type": "vless",
+      "server": "$SERVER",
+      "server_port": 443,
+      "uuid": "$UUID",
+      "flow": "$FLOW",
+      "tls": {
+        "enabled": true,
+        "server_name": "$FAKE_SERVER",
+        "utls": {
+          "enabled": true,
+          "fingerprint": "$FINGERPRINT"
+        },
+        "reality": {
+          "enabled": true,
+          "public_key": "$PUBLIC_KEY",
+          "short_id": "$SHORT_ID"
+        }
+      }
+    }
+  ],
+  "route": {
+    "rules": [
+      {
+        "protocol": "dns",
+        "outbound": "dns-out"
+      },
+      {
+        "inbound": ["tproxy-in"],
+        "domain_suffix": ["ifconfig.me"],
+        "outbound": "vless-out"
+      }
+    ],
+    "auto_detect_interface": true
+  }
+}
+EOF
+  fi
+}
+
 main() {
   install_dependencies
   configure_sing_box_service
   configure_dhcp
   configure_network
   configure_nftables
+  configure_sing_box
   restart_service "dnsmasq"
   restart_service "firewall"
 }
