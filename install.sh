@@ -313,6 +313,10 @@ EOF
   fi
 }
 
+print_post_install_message() {
+  printf "\nInstallation completed successfully.\n\n!!! Now you need to make changes to sing-box config (nano /etc/sing-box/config.json) and restart sing-box service with this command: service sing-box restart !!!\n\n"
+}
+
 main() {
   install_dependencies
   configure_sing_box_service
@@ -322,6 +326,7 @@ main() {
   configure_sing_box
   restart_service "dnsmasq"
   restart_service "firewall"
+  print_post_install_message
 }
 
 main
