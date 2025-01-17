@@ -24,7 +24,7 @@ sh <(wget -O - https://raw.githubusercontent.com/vernette/singbox-tproxy-fakeip/
 
 ```bash
 nano /etc/sing-box/config.json # или vim /etc/sing-box/config.json
-systemctl restart sing-box
+service sing-box restart
 ```
 
 И всё готово!
@@ -54,7 +54,7 @@ After script finishes, you need to make changes to the sing-box config file (cha
 
 ```bash
 nano /etc/sing-box/config.json # or vim /etc/sing-box/config.json
-systemctl restart sing-box
+service sing-box restart
 ```
 
 And now you are ready to go!
