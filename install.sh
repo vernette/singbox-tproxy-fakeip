@@ -307,6 +307,7 @@ main() {
   configure_network
   configure_nftables
   configure_sing_box
+  restart_service "network"
   restart_service "dnsmasq"
   restart_service "firewall"
   print_post_install_message
