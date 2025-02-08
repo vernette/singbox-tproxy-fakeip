@@ -80,81 +80,28 @@ configure_dhcp() {
   fi
 }
 
-check_network_rule_exists() {
-  type="$1"
-  shift
-
-  uci show network | grep -q "@${type}\[" || true
-
-  found=0
-  i=0
-  while true; do
-    if ! uci -q get "network.@${type}[${i}]" >/dev/null 2>&1; then
-      break
-    fi
-
-    allmatch=1
-
-    for param in "$@"; do
-      key=$(echo "$param" | cut -d= -f1)
-      value=$(echo "$param" | cut -d= -f2)
-      current=$(uci -q get "network.@${type}[${i}].${key}")
-
-      if [ "$current" != "$value" ]; then
-        allmatch=0
-        break
-      fi
-    done
-
-    if [ "$allmatch" = "1" ]; then
-      found=1
-      break
-    fi
-
-    i=$((i + 1))
-  done
-
-  return $((1 - found))
-}
-
-add_network_section() {
-  type="$1"
-  shift
-
-  if ! uci add network "$type" >/dev/null 2>&1; then
-    log_message "ERROR" "Failed to add new ${type} section"
-    return 1
-  fi
-
-  for param in "$@"; do
-    key=$(echo "$param" | cut -d= -f1)
-    value=$(echo "$param" | cut -d= -f2)
-    if ! uci set "network.@${type}[-1].${key}=${value}" >/dev/null 2>&1; then
-      log_message "ERROR" "Failed to set ${key}=${value} for ${type}"
-      return 1
-    fi
-  done
-
-  return 0
-}
-
 configure_network() {
-  changes=0
-
-  if ! check_network_rule_exists "rule" "mark=0x1" "priority=100" "lookup=100"; then
-    log_message "INFO" "Adding new network rule with mark 0x1"
+  if [ -z "$(uci -q get network.@rule[0])" ]; then
+    log_message "INFO" "Creating marking rule"
+    uci batch <<EOI
+add network rule
+set network.@rule[0].mark='0x1'
+set network.@rule[0].priority='100'
+set network.@rule[0].lookup='100'
+EOI
+    uci commit network
   fi
 
-  if ! check_network_rule_exists "route" "interface=loopback" "target=0.0.0.0/0" "table=100" "type=local"; then
-    log_message "INFO" "Adding new network route for loopback interface"
-  fi
-
-  if [ "$changes" = "1" ]; then
-    log_message "INFO" "Committing changes to network configuration"
-    if ! uci commit network >/dev/null 2>&1; then
-      log_message "ERROR" "Failed to commit changes"
-      return 1
-    fi
+  if [ -z "$(uci -q get network.@route[0])" ]; then
+    log_message "INFO" "Creating route rule"
+    uci batch <<EOI
+add network route
+set network.@route[0].interface='loopback'
+set network.@route[0].target='0.0.0.0/0'
+set network.@route[0].table='100'
+set network.@route[0].type='local'
+EOI
+    uci commit network
   fi
 }
 
