@@ -58,6 +58,7 @@ configure_dhcp() {
   is_noresolv_enabled=$(uci -q get dhcp.@dnsmasq[0].noresolv || echo "0")
   is_filter_aaaa_enabled=$(uci -q get dhcp.@dnsmasq[0].filter_aaaa || echo "0")
   dhcp_server=$(uci -q get dhcp.@dnsmasq[0].server || echo "")
+  dhcp_server_ip="127.0.0.1#5353"
 
   if [ "$is_noresolv_enabled" -ne "1" ]; then
     log_message "INFO" "Enabling noresolv option in DHCP config"
@@ -71,10 +72,10 @@ configure_dhcp() {
     uci commit dhcp
   fi
 
-  if [ "$dhcp_server" != "127.0.0.1#5353" ]; then
-    log_message "INFO" "Setting DHCP server to 127.0.0.1#5353"
+  if [ "$dhcp_server" != "$dhcp_server_ip" ]; then
+    log_message "INFO" "Setting DHCP server to $dhcp_server_ip"
     uci -q delete dhcp.@dnsmasq[0].server
-    uci -q add_list dhcp.@dnsmasq[0].server="127.0.0.1#5353"
+    uci -q add_list dhcp.@dnsmasq[0].server="$dhcp_server_ip"
     uci commit dhcp
   fi
 }
