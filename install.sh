@@ -117,12 +117,14 @@ define FAKEIP = { 198.18.0.0/15 }
 
 chain tproxy_prerouting {
   type filter hook prerouting priority mangle; policy accept;
+  meta nfproto ipv6 return
   ip daddr != $FAKEIP return
   meta l4proto $TPROXY_L4PROTO tproxy to :$TPROXY_PORT meta mark set $TPROXY_MARK accept
 }
 
 chain tproxy_output {
   type route hook output priority mangle; policy accept;
+  meta nfproto ipv6 return
   ip daddr != $FAKEIP return
   meta l4proto $TPROXY_L4PROTO meta mark set $TPROXY_MARK
 }
