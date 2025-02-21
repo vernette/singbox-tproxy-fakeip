@@ -5,16 +5,12 @@
 
 Shell скрипт для настройки sing-box на использование TProxy и FakeIP на роутере с OpenWrt.
 
-| Версия OpenWrt | Версия sing-box | Поддерживается |
-| -------------- | --------------- | -------------- |
-| `23.05.5`      | `1.9.7`         | ✅             |
-| `23.05.5`      | `1.10.7`        | ✅             |
-| `24.10.0`      | `1.10.7`        | ✅             |
+Текущая версия скрипта настраивает sing-box версии `1.11.x`.
 
 ## Установка
 
 ```bash
-sh <(wget -O - https://raw.githubusercontent.com/vernette/singbox-tproxy-fakeip/refs/heads/master/install.sh)
+sh <(wget -O - https://github.com/vernette/singbox-tproxy-fakeip/raw/master/install.sh)
 ```
 
 > [!WARNING]
@@ -37,16 +33,12 @@ service sing-box restart
 
 Shell script to configure sing-box to use TProxy and FakeIP on OpenWrt router.
 
-| OpenWrt version | sing-box version | Supported |
-| --------------- | ---------------- | --------- |
-| `23.05.5`       | `1.9.7`          | ✅        |
-| `23.05.5`       | `1.10.7`         | ✅        |
-| `24.10.0`       | `1.10.7`         | ✅        |
+The current version of the script configures sing-box version `1.11.x`.
 
 ## Installation
 
 ```bash
-sh <(wget -O - https://raw.githubusercontent.com/vernette/singbox-tproxy-fakeip/refs/heads/master/install.sh)
+sh <(wget -O - https://github.com/vernette/singbox-tproxy-fakeip/raw/master/install.sh)
 ```
 
 > [!WARNING]
