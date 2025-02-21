@@ -185,25 +185,19 @@ configure_sing_box() {
       "listen": "::",
       "listen_port": 4444,
       "tcp_fast_open": true,
-      "udp_fragment": true,
-      "sniff": true
+      "udp_fragment": true
     },
     {
       "tag": "dns-in",
       "type": "direct",
       "listen": "127.0.0.1",
-      "listen_port": 5353,
-      "sniff": true
+      "listen_port": 5353
     }
   ],
   "outbounds": [
     {
       "tag": "direct-out",
       "type": "direct"
-    },
-    {
-      "tag": "dns-out",
-      "type": "dns"
     },
     {
       "tag": "vless-out",
@@ -230,8 +224,12 @@ configure_sing_box() {
   "route": {
     "rules": [
       {
+        "inbound": ["tproxy-in", "dns-in"],
+        "action": "sniff"
+      },
+      {
         "protocol": "dns",
-        "outbound": "dns-out"
+        "action": "hijack-dns"
       },
       {
         "inbound": ["tproxy-in"],
