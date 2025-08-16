@@ -57,6 +57,7 @@ configure_sing_box_service() {
 configure_dhcp() {
   is_noresolv_enabled=$(uci -q get dhcp.@dnsmasq[0].noresolv || echo "0")
   is_filter_aaaa_enabled=$(uci -q get dhcp.@dnsmasq[0].filter_aaaa || echo "0")
+  is_locause_disabled=$(uci -q get dhcp.@dnsmasq[0].localuse || echo "1")
   dhcp_server=$(uci -q get dhcp.@dnsmasq[0].server || echo "")
   dhcp_server_ip="127.0.0.1#5353"
 
@@ -69,6 +70,12 @@ configure_dhcp() {
   if [ "$is_filter_aaaa_enabled" -ne "1" ]; then
     log_message "INFO" "Enabling filter_aaaa option in DHCP config"
     uci -q set dhcp.@dnsmasq[0].filter_aaaa=1
+    uci commit dhcp
+  fi
+
+  if [ "$is_locause_disabled" -ne "0" ]; then
+    log_message "INFO" "Disabling localuse option in DHCP config"
+    uci -q set dhcp.@dnsmasq[0].localuse=0
     uci commit dhcp
   fi
 
@@ -156,19 +163,20 @@ configure_sing_box() {
   },
   "dns": {
     "strategy": "ipv4_only",
-    "fakeip": {
-      "enabled": true,
-      "inet4_range": "198.18.0.0/15"
-    },
     "servers": [
       {
         "tag": "cloudflare-doh-server",
-        "address": "https://1.1.1.1/dns-query",
-        "detour": "direct-out"
+        "type": "https",
+        "server": "1.1.1.1"
+      },
+      {
+        "tag": "local-server",
+        "type": "local"
       },
       {
         "tag": "fakeip-server",
-        "address": "fakeip"
+        "type": "fakeip",
+        "inet4_range": "198.18.0.0/15"
       }
     ],
     "rules": [
@@ -222,6 +230,10 @@ configure_sing_box() {
     }
   ],
   "route": {
+    "auto_detect_interface": true,
+    "default_domain_resolver": {
+      "server": "local-server"
+    },
     "rules": [
       {
         "inbound": ["tproxy-in", "dns-in"],
@@ -232,12 +244,10 @@ configure_sing_box() {
         "action": "hijack-dns"
       },
       {
-        "inbound": ["tproxy-in"],
         "domain_suffix": ["ifconfig.me"],
         "outbound": "vless-out"
       }
-    ],
-    "auto_detect_interface": true
+    ]
   }
 }
 EOF
